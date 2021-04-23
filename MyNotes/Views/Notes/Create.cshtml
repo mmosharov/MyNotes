@@ -1,0 +1,20 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+<form asp-action="create" asp-controller="notes" asp-antiforgery="true">
+
+    <div class="container">
+
+        <textarea name="Text" id="text-area" class="mb-3 form-control" style="height:300px" placeholder="Enter text"></textarea>
+
+        <button type="submit" class="btn btn-primary">
+            <span class="fa fa-save"></span> Create
+        </button>
+
+    </div>
+
+</form>

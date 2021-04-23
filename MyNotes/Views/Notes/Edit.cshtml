@@ -1,0 +1,56 @@
+﻿@model MyNotes.Models.Note
+
+@{
+    ViewData["Title"] = "Notes page";
+}
+
+
+<form asp-action="edit" asp-controller="notes" asp-antiforgery="true">
+
+    <div class="container">
+
+        <label class="form-label">
+            Created: <mark>@Model.Created</mark>
+        </label>
+        <label style="float:right" class="form-label">
+            Id: <mark>@Model.Id</mark>
+        </label>
+
+        <textarea name="Text" id="text-area" class="mb-3 form-control" style="height:300px" placeholder="Enter text">@Model.Text</textarea>
+        <input type="hidden" value="@Model.Id" name="Id" />
+
+        <button type="submit" class="btn btn-primary">
+            <span class="fa fa-save"></span> Save
+        </button>
+        <button onclick="$.ajax({
+                url: '@Url.Action("delete", "notes")',
+                method: 'POST',
+                data: { id: @Model.Id },
+                success: function(xml, textStatus, xhr) { window.location.replace('@Url.Action("index", "notes")') },
+                error: function(xml, textStatus, xhr) { alert(xml.status); }
+            });"
+            class="btn btn-danger">
+            <span class="fa fa-trash"></span> Delete
+        </button>
+
+    </div>
+
+</form>
+
+@*<script>
+
+        function setSizesTextArea() {
+            var containerHeight = $("#text-area").parent().height();
+            $("#text-area").height(containerHeight - 150);
+        }
+
+        setTimeout(function () {
+            setSizesTextArea();
+        }, 1000);
+        $(window).resize(function () {
+            setTimeout(function () {
+                setSizesTextArea();
+            }, 1000);
+        });
+
+</script>*@

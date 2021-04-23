@@ -1,0 +1,31 @@
+﻿@model List<MyNotes.Models.Note>
+
+@{
+    ViewData["Title"] = "Notes page";
+}
+
+
+
+<div class="container">
+
+    <a class="btn btn-primary mb-3" asp-controller="notes" asp-action="create">
+        <span class="fa fa-plus-circle"></span> New
+    </a>
+    
+    <table class="table table-hover mb-3">
+        <tr><th style="width:200px">Создано</th><th style="width:100px">Id</th><th>Текст</th></tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td><a href="@Url.Action("edit", "notes", new { id = item.Id })">@item.Created</a></td>
+                <td><a href="@Url.Action("edit", "notes", new { id = item.Id })">@item.Id</a></td>
+                <td><a href="@Url.Action("edit", "notes", new { id = item.Id })">@(item.Text?.ToString().Length > 100 ? item.Text?.ToString().Substring(0, 99) : item.Text?.ToString())</a></td>
+            </tr>
+        }
+    </table>
+
+    <h5 class="card-title mb-3">
+        Total @ViewBag.count
+    </h5>
+
+</div>
