@@ -17,15 +17,24 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <!--
-    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-        <ul class="navbar-nav flex-grow-1">
-            <li class="nav-item">
-                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-            </li>
-        </ul>
-    </div>
-        -->
+
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a class="btn btn-outline-primary" asp-controller="account" asp-action="logout">Logout</a>
+                }
+                else
+                {
+                    <a class="btn btn-outline-primary" asp-action="register" asp-controller="account">Register</a>
+                }
+
+                @*<div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
+            <ul class="navbar-nav flex-grow-1">
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-controller="account" asp-action="logout">Logout</a>
+                </li>
+            </ul>
+        </div>*@
+
             </div>
         </nav>
     </header>

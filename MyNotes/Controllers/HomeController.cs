@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyNotes.Controllers
 {
@@ -18,9 +19,10 @@ namespace MyNotes.Controllers
             _logger = logger;
         }
 
+        [Authorize]
         public IActionResult Index()
         {
-            return Redirect("~/notes");
+            return RedirectToAction("index", "notes");
             //return View();
         }
 

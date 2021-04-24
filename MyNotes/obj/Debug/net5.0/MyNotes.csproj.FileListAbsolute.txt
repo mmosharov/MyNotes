@@ -81,3 +81,5 @@ C:\Users\max-m\source\repos\MyNotes\MyNotes\bin\Debug\net5.0\runtimes\win-x86\na
 C:\Users\max-m\source\repos\MyNotes\MyNotes\bin\Debug\net5.0\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\max-m\source\repos\MyNotes\MyNotes\bin\Debug\net5.0\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\max-m\source\repos\MyNotes\MyNotes\obj\Debug\net5.0\Razor\Views\Notes\Create.cshtml.g.cs
+C:\Users\max-m\source\repos\MyNotes\MyNotes\obj\Debug\net5.0\Razor\Views\Account\Login.cshtml.g.cs
+C:\Users\max-m\source\repos\MyNotes\MyNotes\obj\Debug\net5.0\Razor\Views\Account\Register.cshtml.g.cs

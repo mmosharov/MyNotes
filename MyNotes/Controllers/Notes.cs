@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MyNotes.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyNotes.Controllers
 {
@@ -18,6 +19,7 @@ namespace MyNotes.Controllers
             db = context;
         }
 
+        [Authorize]
         public async Task<ActionResult> Index()
         {
             
@@ -27,6 +29,7 @@ namespace MyNotes.Controllers
 
         }
 
+        [Authorize]
         [HttpGet]
         public ActionResult Edit(int id)
         {
@@ -42,6 +45,7 @@ namespace MyNotes.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> Edit(Note note)
         {
@@ -61,12 +65,14 @@ namespace MyNotes.Controllers
 
         }
 
+        [Authorize]
         [HttpGet]
         public ActionResult Create()
         {
             return View();
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> Create(Note note)
         {
@@ -78,6 +84,7 @@ namespace MyNotes.Controllers
 
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult> Delete(int id)
         {
