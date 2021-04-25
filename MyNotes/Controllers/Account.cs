@@ -36,7 +36,7 @@ namespace MyNotes.Controllers
                 User user = await db.Users.FirstOrDefaultAsync(u => u.Email == model.Email && u.Password == model.Password);
                 if (user != null)
                 {
-                    await Authenticate(model.Email);
+                    await Authenticate(user.Id);
                     return RedirectToAction("Index", "Home");
                 }
                 ModelState.AddModelError("", "Invalid login or password");
@@ -58,10 +58,11 @@ namespace MyNotes.Controllers
                 User user = await db.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
                 if (user == null)
                 {
-                    db.Users.Add(new User { Email = model.Email, Password = model.Password});
+                    User new_user = new User { Email = model.Email, Password = model.Password };
+                    db.Users.Add(new_user);
                     await db.SaveChangesAsync();
 
-                    await Authenticate(model.Email);
+                    await Authenticate(new_user.Id);
 
                     return RedirectToAction("Index", "Home");
                 } else
@@ -75,9 +76,11 @@ namespace MyNotes.Controllers
             return View(model);
         }
 
-        private async Task Authenticate(string userName)
+        private async Task Authenticate(int userId)
         {
-            var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, userName) };
+            var claims = new List<Claim> {
+                new Claim(ClaimsIdentity.DefaultNameClaimType, userId.ToString())
+            };
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
         }

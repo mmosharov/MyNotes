@@ -22,10 +22,14 @@ namespace MyNotes.Controllers
         [Authorize]
         public async Task<ActionResult> Index()
         {
-            
-            ViewBag.count = db.Notes.Count();
 
-            return View(await db.Notes.ToListAsync());
+            var list = new List<Note>();
+
+            list = await db.Notes.Where(n => n.UserId == int.Parse(User.Identity.Name)).ToListAsync();
+
+            ViewBag.count = list.Count();
+
+            return View(list);
 
         }
 
@@ -41,7 +45,14 @@ namespace MyNotes.Controllers
             }
             else
             {
-                return View(note);
+                if (note.UserId == int.Parse(User.Identity.Name))
+                {
+                    return View(note);
+                }
+                else
+                {
+                    return StatusCode(403);
+                }
             }
         }
 
@@ -78,6 +89,7 @@ namespace MyNotes.Controllers
         {
 
             note.Created = DateTime.Now;
+            note.UserId = int.Parse(User.Identity.Name);
             db.Notes.Add(note);
             await db.SaveChangesAsync();
             return Redirect("~/notes");
