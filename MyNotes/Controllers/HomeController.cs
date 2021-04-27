@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using MyNotes.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MyNotes.Controllers
 {
@@ -22,6 +24,8 @@ namespace MyNotes.Controllers
         [Authorize]
         public IActionResult Index()
         {
+            //SmsSender smsSender = HttpContext.RequestServices.GetService<SmsSender>();
+            //smsSender.Send("+79670759346", "hiiii!!");
             return RedirectToAction("index", "notes");
             //return View();
         }

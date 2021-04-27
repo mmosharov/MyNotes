@@ -1,0 +1,41 @@
+﻿@model MyNotes.Models.User;
+
+@{
+}
+
+<div class="container">
+
+    <form asp-action="profile" asp-controller="account" asp-antiforgery="true">
+
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label">Id:</label>
+            <div class="col">
+                <input readonly class="form-control-plaintext" name="Id" value="@Model.Id" />
+            </div>
+            <input type="hidden" name="Id" value="@Model.Id" />
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label">Email</label>
+            <div class="col">
+                <input class="form-control" name="Email" disabled="disabled" value="@Model.Email" />
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label">Mobile</label>
+            <div class="col">
+                <div class="input-group">
+                    <input class="form-control" name="Mobile" placeholder="Mobile number" value="@Model.Mobile" />
+                    <div class="input-group-append">
+                        <button class="btn btn-primary">Verify mobile</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Save</button>
+
+    </form>
+
+</div>

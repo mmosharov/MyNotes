@@ -91,5 +91,51 @@ namespace MyNotes.Controllers
             return RedirectToAction("Login", "Account");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+
+            var model = await db.Users.FirstOrDefaultAsync(u => u.Id == int.Parse(User.Identity.Name));
+
+            if (model == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return View(model);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Profile(User model)
+        {
+
+            int id = int.Parse(User.Identity.Name);
+
+            if (id != model.Id)
+            {
+                return StatusCode(422);
+            }
+            else
+            {
+
+                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    user.Mobile = model.Mobile;
+                    db.Users.Update(user);
+                    await db.SaveChangesAsync();
+                    return View(user);
+                }
+
+            }
+        }
+
     }
 }

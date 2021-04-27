@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MyNotes.Models;
+using MyNotes.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -16,6 +17,7 @@ namespace MyNotes
 {
     public class Startup
     {
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -36,11 +38,21 @@ namespace MyNotes
                 {
                     options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
                 });
+
+            // API Configuration
+            var builder = new ConfigurationBuilder().AddJsonFile("api.json");
+            services.Configure<IApiConfiguration>(builder.Build());
+
+            // SMS Sender
+            services.AddSingleton<SmsSender>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

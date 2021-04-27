@@ -24,11 +24,12 @@
                 }
                 else if (User.Identity.IsAuthenticated)
                 {
-                <a class="btn btn-outline-primary" asp-controller="account" asp-action="logout">Logout</a>
+                    <a class="btn btn-outline-primary ml-auto" asp-controller="account" asp-action="profile">My profile</a>
+                    <a class="btn btn-outline-primary ml-2" asp-controller="account" asp-action="logout">Logout</a>
                 }
                 else
                 {
-                <a class="btn btn-outline-primary" asp-action="register" asp-controller="account">Register</a>
+                    <a class="btn btn-outline-primary" asp-action="register" asp-controller="account">Register</a>
                 }
 
                 @*<div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
