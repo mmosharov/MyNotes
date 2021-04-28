@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using MyNotes.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MyNotes.Controllers
 {
@@ -135,6 +137,92 @@ namespace MyNotes.Controllers
                 }
 
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendMobileVerificationCode(int userId)
+        {
+
+            const int ExpiresAfter = 10;
+
+            User user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            else if (user.MobileVerified == true)
+            {
+                return StatusCode(422);
+            }
+            else
+            {
+                DateTime now = DateTime.Now;
+                UserMobileVerification verification = await db.UserMobileVerifications.FirstOrDefaultAsync(u => u.UserId == user.Id);
+                bool verificationIsNew = verification == null;
+                if (verificationIsNew || (now - verification.DateTimeSent).TotalMinutes > ExpiresAfter)
+                {
+                    string code = "111";
+                    SmsSender smsSender = HttpContext.RequestServices.GetService<SmsSender>();
+                    smsSender.Send(user.Mobile, $"Your code - {code}");
+                    if (verification == null)
+                    {
+                        verification = new UserMobileVerification();
+                        verification.UserId = user.Id;
+                    }
+                    verification.Code = code;
+                    verification.DateTimeSent = now;
+                    if (verificationIsNew)
+                    {
+                        await db.UserMobileVerifications.AddAsync(verification);
+                    }
+                    else
+                    {
+                        db.UserMobileVerifications.Update(verification);
+                    }
+                    await db.SaveChangesAsync();
+                }
+
+                return Ok();
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyMobileCode(int userId, string code)
+        {
+
+            User user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            else if (user.MobileVerified == true)
+            {
+                return StatusCode(422);
+            }
+            else
+            {
+                UserMobileVerification verification = await db.UserMobileVerifications.FirstOrDefaultAsync(u => u.UserId == user.Id);
+                if (verification == null)
+                {
+                    return StatusCode(422);
+                }
+                else
+                {
+                    if (verification.Code == code)
+                    {
+                        user.MobileVerified = true;
+                        db.Users.Update(user);
+                        db.UserMobileVerifications.Remove(verification);
+                        await db.SaveChangesAsync();
+                        return Ok();
+                    }
+                    else
+                    {
+                        return StatusCode(406);
+                    }
+                }
+            }
+
         }
 
     }

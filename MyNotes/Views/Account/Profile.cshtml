@@ -3,7 +3,7 @@
 @{
 }
 
-<div class="container">
+<div class="container mt-5">
 
     <form asp-action="profile" asp-controller="account" asp-antiforgery="true">
 
@@ -26,9 +26,20 @@
             <label class="col-sm-1 col-form-label">Mobile</label>
             <div class="col">
                 <div class="input-group">
-                    <input class="form-control" name="Mobile" placeholder="Mobile number" value="@Model.Mobile" />
+                    <input class="form-control @(@Model.MobileVerified ? "is-valid" : "")" name="Mobile" placeholder="Mobile number" value="@Model.Mobile" />
+                    @if (!Model.MobileVerified)
+                    {
                     <div class="input-group-append">
-                        <button class="btn btn-primary">Verify mobile</button>
+                        <button type="button" id="verify_button" class="btn btn-primary">Verify mobile</button>
+                    </div>
+                    }
+                </div>
+            </div>
+            <div class="col-sm-2 pl-0 d-none" id="verification_code_group">
+                <div class="input-group">
+                    <input class="form-control" name="Code" placeholder="Code" id="code"  value="" />
+                    <div class="input-group-append">
+                        <button type="button" id="verify_ok" class="btn btn-primary">OK</button>
                     </div>
                 </div>
             </div>
@@ -39,3 +50,29 @@
     </form>
 
 </div>
+
+<script>
+
+    $('#verify_button').click(function () {
+        $('#verify_button').attr("disabled", true);
+        $.ajax({
+                url: '@Url.Action("SendMobileVerificationCode", "Account")',
+                method: 'POST',
+                data: { userId: @Model.Id },
+                success: function (xml, textStatus, xhr) { alert('Code sent'); $('#verification_code_group').removeClass('d-none'); },
+                error: function(xml, textStatus, xhr) { alert(xml.status); }
+            });
+    });
+
+    $('#verify_ok').click(function () {
+        $('#verify_ok').attr("disabled", true);
+        $.ajax({
+                url: '@Url.Action("VerifyMobileCode", "Account")',
+                method: 'POST',
+                data: { userId: @Model.Id, code: $("#code").val() },
+                success: function (xml, textStatus, xhr) { alert('Code ok'); $('#verification_code_group').addClass('d-none'); },
+                error: function(xml, textStatus, xhr) { alert(xml.status); }
+            });
+    });
+
+</script>
