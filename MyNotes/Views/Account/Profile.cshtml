@@ -3,76 +3,176 @@
 @{
 }
 
-<div class="container mt-5">
+<div class="container" style="margin-top:15%">
 
-    <form asp-action="profile" asp-controller="account" asp-antiforgery="true">
+    <div class="row">
+        <div class="col-8 mx-auto">
 
-        <div class="form-group row">
-            <label class="col-sm-1 col-form-label">Id:</label>
-            <div class="col">
-                <input readonly class="form-control-plaintext" name="Id" value="@Model.Id" />
-            </div>
-            <input type="hidden" name="Id" value="@Model.Id" />
-        </div>
+            <h1 class="text-center display-4">Profile</h1>
 
-        <div class="form-group row">
-            <label class="col-sm-1 col-form-label">Email</label>
-            <div class="col">
-                <input class="form-control" name="Email" disabled="disabled" value="@Model.Email" />
-            </div>
-        </div>
+            <form asp-action="profile" asp-controller="account" asp-antiforgery="true">
 
-        <div class="form-group row">
-            <label class="col-sm-1 col-form-label">Mobile</label>
-            <div class="col">
-                <div class="input-group">
-                    <input class="form-control @(@Model.MobileVerified ? "is-valid" : "")" name="Mobile" placeholder="Mobile number" value="@Model.Mobile" />
-                    @if (!Model.MobileVerified)
-                    {
-                    <div class="input-group-append">
-                        <button type="button" id="verify_button" class="btn btn-primary">Verify mobile</button>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Id:</label>
+                    <div class="col">
+                        <input readonly class="form-control-plaintext" name="Id" value="@Model.Id" />
                     </div>
-                    }
+                    <input type="hidden" name="Id" value="@Model.Id" />
                 </div>
-            </div>
-            <div class="col-sm-2 pl-0 d-none" id="verification_code_group">
-                <div class="input-group">
-                    <input class="form-control" name="Code" placeholder="Code" id="code"  value="" />
-                    <div class="input-group-append">
-                        <button type="button" id="verify_ok" class="btn btn-primary">OK</button>
+
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Email</label>
+                    <div class="col">
+                        <input class="form-control" name="Email" disabled="disabled" value="@Model.Email" />
                     </div>
                 </div>
-            </div>
+
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label">Mobile</label>
+                    <div class="col">
+                        <div class="input-group">
+                            <input class="form-control @(@Model.MobileVerified ? "is-valid" : "")" name="Mobile" id="mobile" placeholder="Mobile number" value="@Model.Mobile" />
+                            @if (!Model.MobileVerified)
+                            {
+                                <div class="input-group-append">
+                                    <button type="button" id="verify_button" class="btn btn-primary">Verify mobile</button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Save</button>
+
+            </form>
+
         </div>
+    </div>
+</div>
 
-        <button type="submit" class="btn btn-primary mt-3">Save</button>
+<div class="modal fade" id="info_modal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
 
-    </form>
+            <div class="modal-header">
+                <h4 class="modal-title" id="info_modal_header"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
 
+            <div class="modal-body">
+                <p id="info_modal_text"></p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="mobile_code_modal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">Code sent</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <input class="form-control" name="Code" placeholder="Code" id="code" value="" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="mobile_code_resend" class="btn btn-primary">Resend</button>
+                <button type="button" id="verify_ok" class="btn btn-primary">OK</button>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 <script>
 
-    $('#verify_button').click(function () {
-        $('#verify_button').attr("disabled", true);
+    $('#verify_button, #mobile_code_resend').click(function () {
+        //$('#verify_button').attr("disabled", true);
+        var ajax_data = { userId: @Model.Id };
+        if (this.id == 'mobile_code_resend') {
+            ajax_data.force = true;
+        }
         $.ajax({
-                url: '@Url.Action("SendMobileVerificationCode", "Account")',
-                method: 'POST',
-                data: { userId: @Model.Id },
-                success: function (xml, textStatus, xhr) { alert('Code sent'); $('#verification_code_group').removeClass('d-none'); },
-                error: function(xml, textStatus, xhr) { alert(xml.status); }
-            });
+            url: '@Url.Action("SendMobileVerificationCode", "Account")',
+            method: 'POST',
+            data: ajax_data,
+            success: function (xml, textStatus, xhr) {
+                $('#verify_ok').attr("disabled", false);
+                $('#mobile_code_modal').modal();
+                resreshDateTimeSent();
+            },
+            error: function (xml, textStatus, xhr) {
+                $('#info_modal_header').text('ERROR');
+                $('#info_modal_text').text(`${xml.responseText} (${xml.status})`);
+                $('#info_modal').modal();
+            }
+        });
     });
 
     $('#verify_ok').click(function () {
         $('#verify_ok').attr("disabled", true);
         $.ajax({
-                url: '@Url.Action("VerifyMobileCode", "Account")',
-                method: 'POST',
-                data: { userId: @Model.Id, code: $("#code").val() },
-                success: function (xml, textStatus, xhr) { alert('Code ok'); $('#verification_code_group').addClass('d-none'); },
-                error: function(xml, textStatus, xhr) { alert(xml.status); }
-            });
+            url: '@Url.Action("VerifyMobileCode", "Account")',
+            method: 'POST',
+            data: { userId: @Model.Id, code: $("#code").val() },
+            success: function (xml, textStatus, xhr) {
+                $('#mobile_code_modal').modal('hide');
+                $('#mobile').addClass('is-valid');
+                $('#verify_button').parent().remove();
+                $('#info_modal_header').text('SUCCESS');
+                $('#info_modal_text').text('Your mobile is verified!')
+                $('#info_modal').modal();
+            },
+            error: function (xml, textStatus, xhr) {
+                $('#mobile_code_modal').modal('hide');
+                $('#info_modal_header').text('ERROR');
+                $('#info_modal_text').text(`${xml.responseText} (${xml.status})`);
+                $('#info_modal').modal();
+                //$('#verify_button').attr("disabled", false);
+            }
+        });
     });
+
+    // Resend timeout
+    const timeOut = 60;
+    var dateTimeSent;
+
+    function resreshDateTimeSent() {
+        $.ajax({
+            url: '@Url.Action("GetDateTimeMobileVerificationCodeSent", "Account")',
+            method: 'GET',
+            data: { userId: @Model.Id },
+            success: function (xml, textStatus, xhr) {
+                dateTimeSent = new Date(xml);
+            },
+            error: function (xml, textStatus, xhr) {
+            }
+        });
+    }
+
+    setInterval(
+        function () {
+            var diff = Math.ceil((Date.now() - dateTimeSent) / 1000);
+            if (diff < timeOut) {
+                $('#mobile_code_resend').attr("disabled", true);
+                $('#mobile_code_resend').text(`Resend (${timeOut - diff})`);
+            }
+            else
+            {
+                $('#mobile_code_resend').attr("disabled", false);
+                $('#mobile_code_resend').text(`Resend`);
+            }
+        },
+        1000
+    );
 
 </script>

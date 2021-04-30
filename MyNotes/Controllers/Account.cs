@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using MyNotes.Services;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
 
 namespace MyNotes.Controllers
 {
@@ -140,7 +143,7 @@ namespace MyNotes.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendMobileVerificationCode(int userId)
+        public async Task<IActionResult> SendMobileVerificationCode(int userId, bool force)
         {
 
             const int ExpiresAfter = 10;
@@ -148,42 +151,50 @@ namespace MyNotes.Controllers
             User user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
             {
-                return NotFound();
+                return NotFound("User was not found");
             }
             else if (user.MobileVerified == true)
             {
-                return StatusCode(422);
+                return StatusCode(422, "Your mobile is already verified");
             }
             else
             {
                 DateTime now = DateTime.Now;
                 UserMobileVerification verification = await db.UserMobileVerifications.FirstOrDefaultAsync(u => u.UserId == user.Id);
-                bool verificationIsNew = verification == null;
-                if (verificationIsNew || (now - verification.DateTimeSent).TotalMinutes > ExpiresAfter)
+                if (verification == null || force || (now - verification.DateTimeSent).TotalMinutes > ExpiresAfter)
                 {
-                    string code = "111";
-                    SmsSender smsSender = HttpContext.RequestServices.GetService<SmsSender>();
-                    smsSender.Send(user.Mobile, $"Your code - {code}");
+
+                    var code = GenerateMobileVerificationCode();
+
+                    HttpContext.RequestServices.GetService<SmsSender>().Send(user.Mobile, $"Your code - {code}");
+
                     if (verification == null)
                     {
                         verification = new UserMobileVerification();
                         verification.UserId = user.Id;
-                    }
-                    verification.Code = code;
-                    verification.DateTimeSent = now;
-                    if (verificationIsNew)
-                    {
+                        verification.Code = code;
+                        verification.DateTimeSent = now;
                         await db.UserMobileVerifications.AddAsync(verification);
                     }
                     else
                     {
+                        verification.Code = code;
+                        verification.DateTimeSent = now;
                         db.UserMobileVerifications.Update(verification);
                     }
+
                     await db.SaveChangesAsync();
+
                 }
 
                 return Ok();
             }
+        }
+
+        private string GenerateMobileVerificationCode()
+        {
+            string code = (new Random()).Next(9999).ToString("0000");
+            return code;
         }
 
         [HttpPost]
@@ -193,18 +204,18 @@ namespace MyNotes.Controllers
             User user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
             {
-                return NotFound();
+                return NotFound("User was not found");
             }
             else if (user.MobileVerified == true)
             {
-                return StatusCode(422);
+                return StatusCode(422, "Your mobile is already verified");
             }
             else
             {
                 UserMobileVerification verification = await db.UserMobileVerifications.FirstOrDefaultAsync(u => u.UserId == user.Id);
                 if (verification == null)
                 {
-                    return StatusCode(422);
+                    return StatusCode(422, "Verification code wan not requested");
                 }
                 else
                 {
@@ -218,8 +229,36 @@ namespace MyNotes.Controllers
                     }
                     else
                     {
-                        return StatusCode(406);
+                        return StatusCode(406, "Status code is wrong, try again");
                     }
+                }
+            }
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDateTimeMobileVerificationCodeSent(int userId)
+        {
+
+            User user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return NotFound("User was not found");
+            }
+            else if (user.MobileVerified == true)
+            {
+                return StatusCode(422, "Your mobile is already verified");
+            }
+            else
+            {
+                UserMobileVerification verification = await db.UserMobileVerifications.FirstOrDefaultAsync(u => u.UserId == user.Id);
+                if (verification == null)
+                {
+                    return StatusCode(422, "Verification code wan not requested");
+                }
+                else
+                {
+                    return Ok(verification.DateTimeSent);
                 }
             }
 
