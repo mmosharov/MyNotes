@@ -8,21 +8,73 @@
 
 <div class="container">
 
-    <a class="btn btn-primary mb-3" asp-controller="notes" asp-action="create">
-        <span class="fa fa-plus-circle"></span> New
-    </a>
-    
-    <table class="table table-hover mb-3">
-        <tr><th style="width:200px">Создано</th><th style="width:100px">Id</th><th>Текст</th></tr>
+    <div class="row mb-3 mt-4">
+        <a class="btn btn-primary" asp-controller="notes" asp-action="create">
+            <span class="fa fa-plus-circle"></span> New
+        </a>
+
+        <div class="btn-group ml-auto">
+            <button type="button" class="btn btn-secondary" onclick="document.cookie = 'notes_view=list'; location.reload();">List</button>
+            <button type="button" class="btn btn-secondary" onclick="document.cookie = 'notes_view=cards'; location.reload();">Cards</button>
+        </div>
+
+    </div>
+
+    @if (Context.Request.Cookies["notes_view"] == "list")
+    {
+        <table class="table table-hover mb-3">
+            <tr class="row">
+                <th class="col-2">Created</th>
+                <th class="col-1">Id</th>
+                <th class="col-8">Text</th>
+            </tr>
+            @foreach (var item in Model)
+            {
+                <tr class="row">
+                    <td class="col-2"><a href="@Url.Action("edit", "notes", new { id = item.Id })">@item.Created</a></td>
+                    <td class="col-1"><a href="@Url.Action("edit", "notes", new { id = item.Id })">@item.Id</a></td>
+                    <td class="col-8"><a href="@Url.Action("edit", "notes", new { id = item.Id })">@(item.Text?.ToString().Length > 100 ? item.Text?.ToString().Substring(0, 99) : item.Text?.ToString())</a></td>
+                </tr>
+            }
+        </table>
+    }
+    else
+    {
+        int c = 0;
+        const int c_max = 3;
         @foreach (var item in Model)
         {
-            <tr>
-                <td><a href="@Url.Action("edit", "notes", new { id = item.Id })">@item.Created</a></td>
-                <td><a href="@Url.Action("edit", "notes", new { id = item.Id })">@item.Id</a></td>
-                <td><a href="@Url.Action("edit", "notes", new { id = item.Id })">@(item.Text?.ToString().Length > 100 ? item.Text?.ToString().Substring(0, 99) : item.Text?.ToString())</a></td>
-            </tr>
+            @if (c == 0)
+            {
+                @:<div class="card-deck mb-4">
+            }
+            <div class="card">
+                <a class="card-block stretched-link text-decoration-none" href="@Url.Action("edit", "notes", new { id = item.Id })">
+                    <!--<img class="card-img-top" src="..." alt="Card image cap">-->
+                    <div class="card-body">
+                        <h5 class="card-title">Id @item.Id</h5>
+                        <p class="card-text">@(item.Text?.ToString().Length > 100 ? item.Text?.ToString().Substring(0, 99) : item.Text?.ToString())</p>
+                        <p class="card-text"><small class="text-muted">@item.Created</small></p>
+                    </div>
+                </a>
+            </div>
+            @if (c == c_max)
+            {
+                @:</div>
+            }
+            c = ((c == c_max) ? 0 : c + 1);
         }
-    </table>
+        @if (c > 0 && c < c_max)
+        {
+            @while (c <= c_max)
+            {
+                <div class="card" style="visibility: hidden">
+                </div>
+                c++;
+            }
+            @:</div>
+        }
+    }
 
     <h5 class="card-title mb-3">
         Total @ViewBag.count
