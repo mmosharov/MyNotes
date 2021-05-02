@@ -13,7 +13,11 @@
             <span class="fa fa-plus-circle"></span> New
         </a>
 
-        <div class="btn-group ml-auto">
+        <div class="mr-4 ml-auto my-auto">
+            <small class="text-muted">total @ViewBag.count</small>
+        </div>
+
+        <div class="btn-group">
             <button type="button" class="btn btn-secondary" onclick="document.cookie = 'notes_view=list'; location.reload();">List</button>
             <button type="button" class="btn btn-secondary" onclick="document.cookie = 'notes_view=cards'; location.reload();">Cards</button>
         </div>
@@ -40,44 +44,24 @@
     }
     else
     {
-        int c = 0;
-        const int c_max = 3;
-        @foreach (var item in Model)
-        {
-            @if (c == 0)
+        <div class="card-columns">
+            @foreach (var item in Model)
             {
-                @:<div class="card-deck mb-4">
-            }
-            <div class="card">
-                <a class="card-block stretched-link text-decoration-none" href="@Url.Action("edit", "notes", new { id = item.Id })">
-                    <!--<img class="card-img-top" src="..." alt="Card image cap">-->
-                    <div class="card-body">
-                        <h5 class="card-title">Id @item.Id</h5>
-                        <p class="card-text">@(item.Text?.ToString().Length > 100 ? item.Text?.ToString().Substring(0, 99) : item.Text?.ToString())</p>
-                        <p class="card-text"><small class="text-muted">@item.Created</small></p>
-                    </div>
-                </a>
-            </div>
-            @if (c == c_max)
-            {
-                @:</div>
-            }
-            c = ((c == c_max) ? 0 : c + 1);
-        }
-        @if (c > 0 && c < c_max)
-        {
-            @while (c <= c_max)
-            {
-                <div class="card" style="visibility: hidden">
+                <div class="card">
+                    <a class="card-block stretched-link text-decoration-none" href="@Url.Action("edit", "notes", new { id = item.Id })">
+                        <!--<img class="card-img-top" src="..." alt="Card image cap">-->
+                        <div class="card-body">
+                            <!--<h5 class="card-title">Id @item.Id</h5>-->
+                            <p class="card-text">@(item.Text?.ToString().Length > 200 ? item.Text?.ToString().Substring(0, 199) : item.Text?.ToString())</p>
+                            <p class="card-text"><small class="text-muted">@item.Created</small></p>
+                        </div>
+                    </a>
                 </div>
-                c++;
             }
-            @:</div>
-        }
+        </div>
     }
 
-    <h5 class="card-title mb-3">
-        Total @ViewBag.count
-    </h5>
 
-</div>
+
+
+    </div>
