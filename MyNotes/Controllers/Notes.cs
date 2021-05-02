@@ -25,7 +25,7 @@ namespace MyNotes.Controllers
 
             var list = new List<Note>();
 
-            list = await db.Notes.Where(n => n.UserId == int.Parse(User.Identity.Name)).ToListAsync();
+            list = await db.Notes.Where(n => n.UserId == int.Parse(User.Identity.Name)).OrderByDescending(n => n.Created).ToListAsync();
 
             ViewBag.count = list.Count();
 
