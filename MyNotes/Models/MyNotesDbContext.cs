@@ -8,6 +8,7 @@ namespace MyNotes.Models
         public DbSet<Note> Notes { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserMobileVerification> UserMobileVerifications { get; set; }
+        public DbSet<NotesSharing> NotesSharings { get; set; }
 
         public MyNotesDbContext(DbContextOptions<MyNotesDbContext> options)
             : base(options)

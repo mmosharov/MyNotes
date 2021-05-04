@@ -1,4 +1,4 @@
-﻿@model List<MyNotes.Models.Note>
+﻿@model List<MyNotes.Models.NoteForView>
 
 @{
     ViewData["Title"] = "Notes page";
@@ -40,10 +40,18 @@
             -->
             @foreach (var item in Model)
             {
-                <tr class="row pointer" onclick="window.location='@Url.Action("edit", "notes", new { id = item.Id })'">
-                    <td class="col-2"><small class="text-muted"><time class="timeago" datetime="@item.Created.ToString("O")">@item.Created</time></small></td>
-                    <td class="col-10">@(item.Text?.ToString().Length > 100 ? item.Text?.ToString().Substring(0, 99) : item.Text?.ToString())</td>
-                </tr>
+            <tr class="row pointer" onclick="window.location='@Url.Action("edit", "notes", new { id = item.Note.Id })'">
+                <td class="col-10">
+                    <a href="@Url.Action("edit", "notes", new { id = item.Note.Id })">
+                        @if (item.SharingType == NoteSharingType.Shared)
+                        {
+                            <i class="fas fa-share"></i>
+                        }
+                        @(item.Note.Text?.ToString().Length > 100 ? item.Note.Text?.ToString().Substring(0, 99) : item.Note.Text?.ToString())
+                    </a>
+                </td>
+                <td class="col-2 text-right"><small class="text-muted"><time class="timeago" datetime="@item.Note.Created.ToString("O")">@item.Note.Created</time></small></td>
+            </tr>
             }
         </table>
     }
@@ -53,12 +61,18 @@
             @foreach (var item in Model)
             {
                 <div class="card">
-                    <a class="card-block stretched-link text-decoration-none" href="@Url.Action("edit", "notes", new { id = item.Id })">
+                    <a class="card-block stretched-link text-decoration-none" href="@Url.Action("edit", "notes", new { id = item.Note.Id })">
                         <!--<img class="card-img-top" src="..." alt="Card image cap">-->
                         <div class="card-body">
-                            <!--<h5 class="card-title">Id @item.Id</h5>-->
-                            <p class="card-text">@(item.Text?.ToString().Length > 200 ? item.Text?.ToString().Substring(0, 199) : item.Text?.ToString())</p>
-                            <p class="card-text"><small class="text-muted"><time class="timeago" datetime="@item.Created.ToString("O")">@item.Created</time></small></p>
+                            <!--<h5 class="card-title">Id @item.Note.Id</h5>-->
+                            <p class="card-text">
+                                @if (item.SharingType == NoteSharingType.Shared)
+                                {
+                                    <i class="fas fa-share"></i>
+                                }
+                                @(item.Note.Text?.ToString().Length > 200 ? item.Note.Text?.ToString().Substring(0, 199) : item.Note.Text?.ToString())
+                            </p>
+                            <p class="card-text"><small class="text-muted"><time class="timeago" datetime="@item.Note.Created.ToString("O")">@item.Note.Created</time></small></p>
                         </div>
                     </a>
                 </div>

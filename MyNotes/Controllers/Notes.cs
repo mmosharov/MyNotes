@@ -23,13 +23,20 @@ namespace MyNotes.Controllers
         public async Task<ActionResult> Index()
         {
 
-            var list = new List<Note>();
+            var currentUserId = int.Parse(User.Identity.Name);
 
-            list = await db.Notes.Where(n => n.UserId == int.Parse(User.Identity.Name)).OrderByDescending(n => n.Created).ToListAsync();
+            var own = from note in db.Notes
+                      where note.UserId == currentUserId
+                      select new NoteForView() { Note = note, SharingType = NoteSharingType.Own };
+            var shared = from note in db.Notes
+                         join notesSharing in db.NotesSharings on note.Id equals notesSharing.NoteId
+                         where notesSharing.ShareWithUserId == currentUserId
+                         select new NoteForView() { Note = note, SharingType = NoteSharingType.Shared };
+            var all = await own.Union(shared).OrderByDescending(n => n.Note.Created).ToListAsync();
 
-            ViewBag.count = list.Count();
+            ViewBag.count = all.Count();
 
-            return View(list);
+            return View(all);
 
         }
 
