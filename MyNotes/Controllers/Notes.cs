@@ -54,7 +54,12 @@ namespace MyNotes.Controllers
             {
                 if (note.UserId == int.Parse(User.Identity.Name))
                 {
-                    return View(note);
+
+                    var users = db.Users.ToList();
+                    ViewBag.users = users;
+
+                    var model = new NoteForView() { Note = note, SharedToUsers = note.SharedToUser()};
+                    return View(model);
                 }
                 else
                 {
