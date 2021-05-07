@@ -16,6 +16,12 @@ namespace MyNotes.Models
             //Database.EnsureCreated();
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<NotesSharing>()
+                .HasKey(ns => new { ns.NoteId, ns.ShareWithUserId });
+        }
+
     }
 
 }
