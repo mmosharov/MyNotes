@@ -67,7 +67,7 @@
                     </select>
             </div>
             <div class="modal-footer">
-                footer
+                <button type="button" id="save_share" class="btn btn-primary">OK</button>
             </div>
 
         </div>
@@ -89,11 +89,29 @@
                 addSharedToUsers(this.value, email);
             });
 
+        $("#save_share").click(function () {
+            var ajax_data = {
+                'noteId': @Model.Note.Id,
+                'newSharedToUsers': Array.from(sharedToUsers, el => el.id)
+            }
+            $.ajax({
+                url: '@Url.Action("SaveSharedToUsers", "Notes")',
+                method: 'POST',
+                data: ajax_data,
+                success: function (xml, textStatus, xhr) {
+                    $("#share_modal").modal('hide');
+                },
+                error: function (xml, textStatus, xhr) {
+                    alert(`${xml.responseText} (${xml.status})`);
+                }
+            });
+        })
+
         function refreshUserShareBadges() {
             $("#user_share_badges").empty();
             sharedToUsers.forEach(element =>
                 $("#user_share_badges").append($(`<span class="badge badge-success mr-1">${element.email}</span>`))
-            ); 
+            );
         }
 
         function addSharedToUsers(id, email) {

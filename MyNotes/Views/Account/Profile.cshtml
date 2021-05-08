@@ -93,86 +93,89 @@
     </div>
 </div>
 
-<script>
+@section Scripts
+{
+    <script>
 
-    $('#verify_button, #mobile_code_resend').click(function () {
-        //$('#verify_button').attr("disabled", true);
-        var ajax_data = { userId: @Model.Id };
-        if (this.id == 'mobile_code_resend') {
-            ajax_data.force = true;
+        $('#verify_button, #mobile_code_resend').click(function () {
+            //$('#verify_button').attr("disabled", true);
+            var ajax_data = { userId: @Model.Id };
+            if (this.id == 'mobile_code_resend') {
+                ajax_data.force = true;
+            }
+            $.ajax({
+                url: '@Url.Action("SendMobileVerificationCode", "Account")',
+                method: 'POST',
+                data: ajax_data,
+                success: function (xml, textStatus, xhr) {
+                    $('#verify_ok').attr("disabled", false);
+                    $('#mobile_code_modal').modal();
+                    resreshDateTimeSent();
+                },
+                error: function (xml, textStatus, xhr) {
+                    $('#info_modal_header').text('ERROR');
+                    $('#info_modal_text').text(`${xml.responseText} (${xml.status})`);
+                    $('#info_modal').modal();
+                }
+            });
+        });
+
+        $('#verify_ok').click(function () {
+            $('#verify_ok').attr("disabled", true);
+            $.ajax({
+                url: '@Url.Action("VerifyMobileCode", "Account")',
+                method: 'POST',
+                data: { userId: @Model.Id, code: $("#code").val() },
+                success: function (xml, textStatus, xhr) {
+                    $('#mobile_code_modal').modal('hide');
+                    $('#mobile').addClass('is-valid');
+                    $('#verify_button').parent().remove();
+                    $('#info_modal_header').text('SUCCESS');
+                    $('#info_modal_text').text('Your mobile is verified!')
+                    $('#info_modal').modal();
+                },
+                error: function (xml, textStatus, xhr) {
+                    $('#mobile_code_modal').modal('hide');
+                    $('#info_modal_header').text('ERROR');
+                    $('#info_modal_text').text(`${xml.responseText} (${xml.status})`);
+                    $('#info_modal').modal();
+                    //$('#verify_button').attr("disabled", false);
+                }
+            });
+        });
+
+        // Resend timeout
+        const timeOut = 60;
+        var dateTimeSent;
+
+        function resreshDateTimeSent() {
+            $.ajax({
+                url: '@Url.Action("GetDateTimeMobileVerificationCodeSent", "Account")',
+                method: 'GET',
+                data: { userId: @Model.Id },
+                success: function (xml, textStatus, xhr) {
+                    dateTimeSent = new Date(xml);
+                },
+                error: function (xml, textStatus, xhr) {
+                }
+            });
         }
-        $.ajax({
-            url: '@Url.Action("SendMobileVerificationCode", "Account")',
-            method: 'POST',
-            data: ajax_data,
-            success: function (xml, textStatus, xhr) {
-                $('#verify_ok').attr("disabled", false);
-                $('#mobile_code_modal').modal();
-                resreshDateTimeSent();
+
+        setInterval(
+            function () {
+                var diff = Math.ceil((Date.now() - dateTimeSent) / 1000);
+                if (diff < timeOut) {
+                    $('#mobile_code_resend').attr("disabled", true);
+                    $('#mobile_code_resend').text(`Resend (${timeOut - diff})`);
+                }
+                else
+                {
+                    $('#mobile_code_resend').attr("disabled", false);
+                    $('#mobile_code_resend').text(`Resend`);
+                }
             },
-            error: function (xml, textStatus, xhr) {
-                $('#info_modal_header').text('ERROR');
-                $('#info_modal_text').text(`${xml.responseText} (${xml.status})`);
-                $('#info_modal').modal();
-            }
-        });
-    });
+            1000
+        );
 
-    $('#verify_ok').click(function () {
-        $('#verify_ok').attr("disabled", true);
-        $.ajax({
-            url: '@Url.Action("VerifyMobileCode", "Account")',
-            method: 'POST',
-            data: { userId: @Model.Id, code: $("#code").val() },
-            success: function (xml, textStatus, xhr) {
-                $('#mobile_code_modal').modal('hide');
-                $('#mobile').addClass('is-valid');
-                $('#verify_button').parent().remove();
-                $('#info_modal_header').text('SUCCESS');
-                $('#info_modal_text').text('Your mobile is verified!')
-                $('#info_modal').modal();
-            },
-            error: function (xml, textStatus, xhr) {
-                $('#mobile_code_modal').modal('hide');
-                $('#info_modal_header').text('ERROR');
-                $('#info_modal_text').text(`${xml.responseText} (${xml.status})`);
-                $('#info_modal').modal();
-                //$('#verify_button').attr("disabled", false);
-            }
-        });
-    });
-
-    // Resend timeout
-    const timeOut = 60;
-    var dateTimeSent;
-
-    function resreshDateTimeSent() {
-        $.ajax({
-            url: '@Url.Action("GetDateTimeMobileVerificationCodeSent", "Account")',
-            method: 'GET',
-            data: { userId: @Model.Id },
-            success: function (xml, textStatus, xhr) {
-                dateTimeSent = new Date(xml);
-            },
-            error: function (xml, textStatus, xhr) {
-            }
-        });
-    }
-
-    setInterval(
-        function () {
-            var diff = Math.ceil((Date.now() - dateTimeSent) / 1000);
-            if (diff < timeOut) {
-                $('#mobile_code_resend').attr("disabled", true);
-                $('#mobile_code_resend').text(`Resend (${timeOut - diff})`);
-            }
-            else
-            {
-                $('#mobile_code_resend').attr("disabled", false);
-                $('#mobile_code_resend').text(`Resend`);
-            }
-        },
-        1000
-    );
-
-</script>
+    </script>
+}

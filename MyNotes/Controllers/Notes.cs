@@ -30,7 +30,7 @@ namespace MyNotes.Controllers
                       select new NoteForView() { Note = note, SharingType = NoteSharingType.Own };
             var shared = from note in db.Notes
                          join notesSharing in db.NotesSharings on note.Id equals notesSharing.NoteId
-                         where notesSharing.ShareWithUserId == currentUserId
+                         where notesSharing.ShareWithUserId == currentUserId && note.UserId != currentUserId
                          select new NoteForView() { Note = note, SharingType = NoteSharingType.Shared };
             var all = await own.Union(shared).OrderByDescending(n => n.Note.Created).ToListAsync();
 
@@ -58,7 +58,7 @@ namespace MyNotes.Controllers
                     var users = db.Users.ToList();
                     ViewBag.users = users;
 
-                    var model = new NoteForView() { Note = note, SharedToUsers = note.SharedToUser()};
+                    var model = new NoteForView() { Note = note, SharedToUsers = note.SharedToUsers()};
                     return View(model);
                 }
                 else
@@ -128,67 +128,36 @@ namespace MyNotes.Controllers
 
         }
 
-        //// GET: HomeController1/Create
-        //public ActionResult Create()
-        //{
-        //    return View();
-        //}
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult> SaveSharedToUsers(int noteId, List<int> newSharedToUsers)
+        {
+            Note note = db.Notes.Where(i => i.Id == noteId).FirstOrDefault();
+            if (note is null)
+            {
+                return NotFound();
+            }
+            else
+            {
 
-        //// POST: HomeController1/Create
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Create(IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
+                var noteSharings = await (from noteSharing in db.NotesSharings
+                                         where noteSharing.NoteId == noteId
+                                         select noteSharing).ToListAsync();
 
-        //// GET: HomeController1/Edit/5
-        //public ActionResult Edit(int id)
-        //{
-        //    return View();
-        //}
+                foreach (var noteSharing in noteSharings)
+                {
+                    db.NotesSharings.Remove(noteSharing);
+                }
+                foreach (int userId in newSharedToUsers)
+                {
+                    db.NotesSharings.Add(new NotesSharing(){ NoteId = noteId, ShareWithUserId = userId });
+                }
 
-        //// POST: HomeController1/Edit/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Edit(int id, IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
+                await db.SaveChangesAsync();
+                return Ok();
 
-        //// GET: HomeController1/Delete/5
-        //public ActionResult Delete(int id)
-        //{
-        //    return View();
-        //}
+            }
+        }
 
-        //// POST: HomeController1/Delete/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Delete(int id, IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
     }
 }

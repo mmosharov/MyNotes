@@ -26,7 +26,7 @@ namespace MyNotes.Models
         public DateTime Created { get; set; }
         public int UserId { get; set; }
 
-        public List<User> SharedToUser()
+        public List<User> SharedToUsers()
         {
 
             return (from noteSharing in db.NotesSharings
