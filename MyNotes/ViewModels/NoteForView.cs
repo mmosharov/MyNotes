@@ -13,7 +13,7 @@ namespace MyNotes.Models
     {
         public Note Note { get; set; }
         public NoteSharingType SharingType { get; set; }
-        public List<int> SharedToUsers { get; set; }
+        public List<User> SharedToUsers { get; set; }
         
     }
 }

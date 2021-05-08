@@ -26,9 +26,14 @@ namespace MyNotes.Models
         public DateTime Created { get; set; }
         public int UserId { get; set; }
 
-        public List<int> SharedToUser()
+        public List<User> SharedToUser()
         {
-            return db.NotesSharings.Where(r => r.NoteId == Id).Select(r => r.ShareWithUserId).ToList();
+
+            return (from noteSharing in db.NotesSharings
+                   join user in db.Users on noteSharing.ShareWithUserId equals user.Id
+                   where noteSharing.NoteId == this.Id
+                   select user).ToList();
+
         }
     }
 
