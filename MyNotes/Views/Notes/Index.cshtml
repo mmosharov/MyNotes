@@ -1,8 +1,10 @@
-﻿@model List<MyNotes.Models.NoteForView>
+﻿@model X.PagedList.IPagedList<MyNotes.Models.NoteForView>
 
 @{
     ViewData["Title"] = "Notes page";
 }
+
+@using X.PagedList.Mvc.Core;
 
 <script src="~/lib/timeago/jquery.timeago.js" type="text/javascript"></script>
 <script>
@@ -40,18 +42,18 @@
             -->
             @foreach (var item in Model)
             {
-            <tr class="row pointer" onclick="window.location='@Url.Action("edit", "notes", new { id = item.Note.Id })'">
-                <td class="col-10">
-                    <a href="@Url.Action("edit", "notes", new { id = item.Note.Id })">
-                        @if (item.SharingType == NoteSharingType.Shared)
-                        {
-                            <i class="fas fa-share"></i>
-                        }
-                        @(item.Note.Text?.ToString().Length > 100 ? item.Note.Text?.ToString().Substring(0, 99) : item.Note.Text?.ToString())
-                    </a>
-                </td>
-                <td class="col-2 text-right"><small class="text-muted"><time class="timeago" datetime="@item.Note.Created.ToString("O")">@item.Note.Created</time></small></td>
-            </tr>
+                <tr class="row pointer" onclick="window.location='@Url.Action("edit", "notes", new { id = item.Note.Id })'">
+                    <td class="col-10">
+                        <a href="@Url.Action("edit", "notes", new { id = item.Note.Id })">
+                            @if (item.SharingType == NoteSharingType.Shared)
+                            {
+                                <i class="fas fa-share"></i>
+                            }
+                            @(item.Note.Text?.ToString().Length > 100 ? item.Note.Text?.ToString().Substring(0, 99) : item.Note.Text?.ToString())
+                        </a>
+                    </td>
+                    <td class="col-2 text-right"><small class="text-muted"><time class="timeago" datetime="@item.Note.Created.ToString("O")">@item.Note.Created</time></small></td>
+                </tr>
             }
         </table>
     }
@@ -80,7 +82,14 @@
         </div>
     }
 
-
+    <div>
+        @Html.PagedListPager(Model, page => Url.Action("Index", new { page }),
+        new X.PagedList.Web.Common.PagedListRenderOptions
+        {
+            LiElementClasses = new string[] { "page-item" },
+            PageClasses = new string[] { "page-link" }
+        })
+    </div>
 
 
 </div>

@@ -15,6 +15,11 @@ namespace MyNotes.Models
 
         private MyNotesDbContext db;
 
+        public Note()
+        {
+
+        }
+
         public Note(MyNotesDbContext context)
         {
             db = context;

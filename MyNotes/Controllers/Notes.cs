@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using MyNotes.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using X.PagedList;
+
 
 namespace MyNotes.Controllers
 {
@@ -20,7 +22,7 @@ namespace MyNotes.Controllers
         }
 
         [Authorize]
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int? page)
         {
 
             var currentUserId = int.Parse(User.Identity.Name);
@@ -34,9 +36,12 @@ namespace MyNotes.Controllers
                          select new NoteForView() { Note = note, SharingType = NoteSharingType.Shared };
             var all = await own.Union(shared).OrderByDescending(n => n.Note.Created).ToListAsync();
 
+            int pageNumber = (page ?? 1);
+            int pageSize = 10;
+
             ViewBag.count = all.Count();
 
-            return View(all);
+            return View(all.ToPagedList(pageNumber, pageSize));
 
         }
 
