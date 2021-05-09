@@ -1,4 +1,6 @@
-﻿namespace MyNotes.Models
+﻿using System.Collections.Generic;
+
+namespace MyNotes.Models
 {
 
     public enum NoteSharingType : int
@@ -11,6 +13,7 @@
     {
         public Note Note { get; set; }
         public NoteSharingType SharingType { get; set; }
+        public List<User> SharedToUsers { get; set; }
         
     }
 }
