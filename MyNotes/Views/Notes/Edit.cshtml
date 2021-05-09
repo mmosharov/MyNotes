@@ -107,15 +107,25 @@
             });
         })
 
+        $(document).on('click', '.share_badge', function () {
+            const id = this.getAttribute("data-id");
+            sharedToUsers.forEach(element => {
+                if (element.id == id) {
+                    sharedToUsers.splice(sharedToUsers.indexOf(element), 1);
+                }
+            });
+            refreshUserShareBadges();
+        });
+
         function refreshUserShareBadges() {
             $("#user_share_badges").empty();
             sharedToUsers.forEach(element =>
-                $("#user_share_badges").append($(`<span class="badge badge-success mr-1">${element.email}</span>`))
+                $("#user_share_badges").append($(`<a href="#" data-id="${element.id}" class="share_badge badge badge-success mr-1">${element.email}<span aria-hidden="true" class="ml-1">×</span></a>`))
             );
         }
 
         function addSharedToUsers(id, email) {
-            var exists = sharedToUsers.find((element, index, array) => {
+            const exists = sharedToUsers.find((element, index, array) => {
                 return element.id == id;
             });
             if (!exists) {
