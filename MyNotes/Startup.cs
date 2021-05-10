@@ -12,6 +12,8 @@ using MyNotes.Models;
 using MyNotes.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace MyNotes
 {
@@ -32,7 +34,10 @@ namespace MyNotes
             services.AddDbContext<MyNotesDbContext>(options =>
                 options.UseSqlServer(connection)
             );
+
             services.AddControllersWithViews();
+
+            // Authentication
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
@@ -63,6 +68,7 @@ namespace MyNotes
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseSerilogRequestLogging();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

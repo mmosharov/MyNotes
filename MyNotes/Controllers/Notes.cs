@@ -8,6 +8,7 @@ using MyNotes.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using X.PagedList;
+using Microsoft.Extensions.Logging;
 
 
 namespace MyNotes.Controllers
@@ -15,15 +16,19 @@ namespace MyNotes.Controllers
     public class Notes : Controller
     {
         private MyNotesDbContext db;
+        private readonly ILogger _logger;
 
-        public Notes(MyNotesDbContext context)
+        public Notes(MyNotesDbContext context, ILogger<Notes> logger)
         {
             db = context;
+            _logger = logger;
         }
 
         [Authorize]
         public async Task<ActionResult> Index(int? page)
         {
+
+            _logger.LogInformation("test");
 
             var currentUserId = int.Parse(User.Identity.Name);
 
